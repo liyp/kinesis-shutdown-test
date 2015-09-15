@@ -1,0 +1,6 @@
+# Project ignore
+/*
+!.gitignore
+!README*
+!src/
+!pom.xml
