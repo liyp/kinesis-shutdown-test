@@ -95,7 +95,22 @@ public final class AmazonKinesisApplicationSample {
         kinesisClientLibConfiguration.withInitialPositionInStream(SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM);
 
         IRecordProcessorFactory recordProcessorFactory = new AmazonKinesisApplicationRecordProcessorFactory();
-        Worker worker = new Worker(recordProcessorFactory, kinesisClientLibConfiguration);
+        final Worker worker = new Worker(recordProcessorFactory, kinesisClientLibConfiguration);
+
+        // add a shutdown hook to stop the server
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("Inside Add Shutdown Hook");
+                worker.shutdown();
+                try {
+                    Thread.sleep(10000); // sleep 10s
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        System.out.println("Shut Down Hook Attached.");
 
         System.out.printf("Running %s to process stream %s as worker %s...\n",
                 SAMPLE_APPLICATION_NAME,
@@ -110,6 +125,8 @@ public final class AmazonKinesisApplicationSample {
             t.printStackTrace();
             exitCode = 1;
         }
+
+        System.out.println("Main thread exits.");
         System.exit(exitCode);
     }
 
